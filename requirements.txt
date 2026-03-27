@@ -1,0 +1,3 @@
+# No Python package dependencies required.
+# The Ookla Speedtest CLI must be installed separately:
+#   winget install Ookla.Speedtest.CLI

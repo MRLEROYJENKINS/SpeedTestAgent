@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Logs (generated data, don't check in)
+logs/
