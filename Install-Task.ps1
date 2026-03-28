@@ -17,8 +17,9 @@ $ErrorActionPreference = "Stop"
 
 $TaskName = "SpeedTestAgent"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$PythonExe = Join-Path $ScriptDir ".venv\Scripts\python.exe"
+$PythonExe = Join-Path $ScriptDir ".venv\Scripts\pythonw.exe"
 $AgentScript = Join-Path $ScriptDir "speed_test_agent.py"
+$VbsWrapper = Join-Path $ScriptDir "run_hidden.vbs"
 
 # --- Uninstall ---
 if ($Uninstall) {
@@ -51,8 +52,8 @@ if (-not (Test-Path $AgentScript)) {
 
 # --- Create the scheduled task ---
 $Action = New-ScheduledTaskAction `
-    -Execute $PythonExe `
-    -Argument "`"$AgentScript`"" `
+    -Execute "wscript.exe" `
+    -Argument "`"$VbsWrapper`"" `
     -WorkingDirectory $ScriptDir
 
 # Run every 15 minutes, indefinitely (999 days ≈ indefinite)
