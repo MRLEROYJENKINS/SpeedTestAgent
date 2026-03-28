@@ -3,5 +3,8 @@ __pycache__/
 *.py[cod]
 .venv/
 
-# Logs (generated data, don't check in)
+# Database (generated data, don't check in)
+*.db
+*.db-wal
+*.db-shm
 logs/
