@@ -69,6 +69,7 @@ def run_speed_test(conn):
             capture_output=True,
             text=True,
             timeout=120,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
 
         if result.returncode != 0:
@@ -111,6 +112,7 @@ def run_traceroute(conn, target):
             capture_output=True,
             text=True,
             timeout=120,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
         output = result.stdout
 
