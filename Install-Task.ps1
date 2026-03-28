@@ -55,10 +55,10 @@ $Action = New-ScheduledTaskAction `
     -Argument "`"$AgentScript`"" `
     -WorkingDirectory $ScriptDir
 
-# Run every 15 minutes, indefinitely
+# Run every 15 minutes, indefinitely (999 days ≈ indefinite)
 $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) `
     -RepetitionInterval (New-TimeSpan -Minutes 15) `
-    -RepetitionDuration ([TimeSpan]::MaxValue)
+    -RepetitionDuration (New-TimeSpan -Days 999)
 
 # Run whether user is logged on or not; don't store password (run only when logged on)
 $Settings = New-ScheduledTaskSettingsSet `
