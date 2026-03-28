@@ -10,6 +10,7 @@ import os
 import sqlite3
 import subprocess
 import sys
+import time
 
 # --- Configuration ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,6 +25,12 @@ TRACEROUTE_TARGETS = [
 TRACEROUTE_MAX_HOPS = 30
 # Timeout per hop in milliseconds
 TRACEROUTE_TIMEOUT_MS = 3000
+
+# Degraded-performance thresholds
+MIN_DOWNLOAD_MBPS = 100
+MAX_PING_MS = 10
+# How often to re-test during degraded performance (seconds)
+RETRY_INTERVAL = 5 * 60  # 5 minutes
 
 
 def get_db():
@@ -91,6 +98,7 @@ def run_speed_test(conn):
         conn.commit()
 
         print(f"  Download: {download_mbps} Mbps | Upload: {upload_mbps} Mbps | Ping: {ping_ms} ms")
+        return download_mbps, ping_ms
 
     except Exception as e:
         print(f"  Speed test failed: {e}", file=sys.stderr)
@@ -99,6 +107,7 @@ def run_speed_test(conn):
             (timestamp, str(e)),
         )
         conn.commit()
+        return None, None
 
 
 def run_traceroute(conn, target):
@@ -173,12 +182,26 @@ def run_traceroute(conn, target):
         conn.commit()
 
 
+def is_degraded(download_mbps, ping_ms):
+    """Return True if performance is below acceptable thresholds."""
+    if download_mbps is None or ping_ms is None:
+        return False  # don't retry on errors
+    return download_mbps < MIN_DOWNLOAD_MBPS or ping_ms > MAX_PING_MS
+
+
 def main():
     conn = get_db()
     try:
-        run_speed_test(conn)
+        download_mbps, ping_ms = run_speed_test(conn)
         for target in TRACEROUTE_TARGETS:
             run_traceroute(conn, target)
+
+        while is_degraded(download_mbps, ping_ms):
+            print(f"  Performance degraded — retesting in {RETRY_INTERVAL // 60} minutes...")
+            time.sleep(RETRY_INTERVAL)
+            download_mbps, ping_ms = run_speed_test(conn)
+            for target in TRACEROUTE_TARGETS:
+                run_traceroute(conn, target)
     finally:
         conn.close()
     print("Done.")
