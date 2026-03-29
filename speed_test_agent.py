@@ -67,7 +67,7 @@ def get_db():
 
 def run_speed_test(conn):
     """Run a speed test using Ookla's official CLI and save results."""
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     print(f"[{timestamp}] Running speed test...")
 
     try:
@@ -112,7 +112,7 @@ def run_speed_test(conn):
 
 def run_traceroute(conn, target):
     """Run tracert to a target and save hop-by-hop results."""
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     print(f"[{timestamp}] Running traceroute to {target}...")
 
     try:
