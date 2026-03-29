@@ -33,6 +33,18 @@ MAX_PING_MS = 10
 RETRY_INTERVAL = 5 * 60  # 5 minutes
 
 
+# Excel epoch: Jan 0, 1900 (with Lotus 123 bug correction)
+_EXCEL_EPOCH = datetime.datetime(1899, 12, 30)
+
+
+def excel_serial_date(dt=None):
+    """Convert a datetime to an Excel serial date number."""
+    if dt is None:
+        dt = datetime.datetime.now()
+    delta = dt - _EXCEL_EPOCH
+    return delta.days + delta.seconds / 86400
+
+
 def get_db():
     """Open (and initialize) the SQLite database."""
     conn = sqlite3.connect(DB_PATH, timeout=10)
@@ -40,7 +52,7 @@ def get_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS speed_tests (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp   TEXT NOT NULL,
+            timestamp   REAL NOT NULL,
             download_mbps REAL,
             upload_mbps   REAL,
             ping_ms       REAL,
@@ -53,7 +65,7 @@ def get_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS traceroutes (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp   TEXT NOT NULL,
+            timestamp   REAL NOT NULL,
             target      TEXT NOT NULL,
             hop_number  INTEGER,
             hop_ip      TEXT,
@@ -67,8 +79,9 @@ def get_db():
 
 def run_speed_test(conn):
     """Run a speed test using Ookla's official CLI and save results."""
-    timestamp = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-    print(f"[{timestamp}] Running speed test...")
+    now = datetime.datetime.now()
+    timestamp = excel_serial_date(now)
+    print(f"[{now:%m/%d/%Y %H:%M:%S}] Running speed test...")
 
     try:
         result = subprocess.run(
@@ -112,8 +125,9 @@ def run_speed_test(conn):
 
 def run_traceroute(conn, target):
     """Run tracert to a target and save hop-by-hop results."""
-    timestamp = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-    print(f"[{timestamp}] Running traceroute to {target}...")
+    now = datetime.datetime.now()
+    timestamp = excel_serial_date(now)
+    print(f"[{now:%m/%d/%Y %H:%M:%S}] Running traceroute to {target}...")
 
     try:
         result = subprocess.run(
