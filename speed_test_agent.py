@@ -65,7 +65,7 @@ def get_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS traceroutes (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp   REAL NOT NULL,
+            timestamp   TEXT NOT NULL,
             target      TEXT NOT NULL,
             hop_number  INTEGER,
             hop_ip      TEXT,
